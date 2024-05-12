@@ -6,7 +6,7 @@
 
     <groupId>dev.mkeo102.logger</groupId>
     <artifactId>Logger</artifactId>
-    <version>1.0T</version>
+    <version>1</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
