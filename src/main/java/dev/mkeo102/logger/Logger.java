@@ -77,6 +77,13 @@ public class Logger implements TerminalColors {
         error(message);
     }
 
+    public void exception(Throwable t){
+        log(new ExceptionType(),t.getMessage());
+        StackTraceElement[] stackTrace = t.getStackTrace();
+        for (StackTraceElement ste : stackTrace){
+            log(new StackTraceType(),"{}#{}({}){}",ste.getClassName(),ste.getMethodName(), ste.getFileName(),ste.getLineNumber());
+        }
+    }
 
     public void debug(String message){
         if(debug)
@@ -125,6 +132,17 @@ public class Logger implements TerminalColors {
     private static class DebugType extends LoggerType {
         public DebugType() {
             super("DEBUG", GREEN);
+        }
+    }
+
+    private static class ExceptionType extends LoggerType {
+        public ExceptionType() {
+            super("EXCEPTION", RED);
+        }
+    }
+    private static class StackTraceType extends LoggerType {
+        public StackTraceType() {
+            super("", RESET);
         }
     }
 
