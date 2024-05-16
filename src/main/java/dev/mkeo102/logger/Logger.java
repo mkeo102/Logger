@@ -35,6 +35,19 @@ public class Logger implements TerminalColors {
         System.out.println(formatted);
     }
 
+    public void silentlog(LoggerType type, String message){
+        LocalTime time = LocalTime.now();
+        String formatted = String.format("%s %s%s",type.getTerminalColor(),message,RESET);
+        System.out.println(formatted);
+    }
+
+    public void silentlog(LoggerType type, String message, Object... formats){
+        for(Object o : formats){
+            message = message.replaceFirst("\\{}", o.toString());
+        }
+        silentlog(type,message);
+    }
+
     public void log(LoggerType type, String message, Object... formats){
         for(Object o : formats){
             message = message.replaceFirst("\\{}", o.toString());
@@ -81,7 +94,7 @@ public class Logger implements TerminalColors {
         log(new ExceptionType(),t.getMessage());
         StackTraceElement[] stackTrace = t.getStackTrace();
         for (StackTraceElement ste : stackTrace){
-            log(new StackTraceType(),"{}#{}({}){}",ste.getClassName(),ste.getMethodName(), ste.getFileName(),ste.getLineNumber());
+            silentlog(new StackTraceType(),"\tat {}.{}({}:{})",ste.getClassName(),ste.getMethodName(), ste.getFileName(),ste.getLineNumber());
         }
     }
 
@@ -142,7 +155,7 @@ public class Logger implements TerminalColors {
     }
     private static class StackTraceType extends LoggerType {
         public StackTraceType() {
-            super("", RESET);
+            super("", RED);
         }
     }
 
