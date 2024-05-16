@@ -91,7 +91,7 @@ public class Logger implements TerminalColors {
     }
 
     public void exception(Throwable t){
-        log(new ExceptionType(),t.getMessage());
+        silentlog(new ExceptionType(), "{} {}",t.getClass().getName(),t.getMessage());
         StackTraceElement[] stackTrace = t.getStackTrace();
         for (StackTraceElement ste : stackTrace){
             silentlog(new StackTraceType(),"\tat {}.{}({}:{})",ste.getClassName(),ste.getMethodName(), ste.getFileName(),ste.getLineNumber());
