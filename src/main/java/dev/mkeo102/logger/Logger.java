@@ -37,7 +37,7 @@ public class Logger implements TerminalColors {
 
     public void silentlog(LoggerType type, String message){
         LocalTime time = LocalTime.now();
-        String formatted = String.format("%s %s%s",type.getTerminalColor(),message,RESET);
+        String formatted = String.format("%s%s %s",type.getTerminalColor(),message,RESET);
         System.out.println(formatted);
     }
 
