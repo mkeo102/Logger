@@ -31,13 +31,13 @@ public class Logger implements TerminalColors {
 
     public void log(LoggerType type, String message){
         LocalTime time = LocalTime.now();
-        String formatted = String.format("%s[%s:%s:%s][%s] %s%s",type.getTerminalColor(),time.getHour(),time.getMinute(),time.getSecond(),type.getTypeInfo(),message,RESET);
+        String formatted = String.format("%s[%s:%s:%s] [%s] %s%s",type.getTerminalColor(),time.getHour(),time.getMinute(),time.getSecond(),type.getTypeInfo(),message,RESET);
         System.out.println(formatted);
     }
 
     public void silentlog(LoggerType type, String message){
         LocalTime time = LocalTime.now();
-        String formatted = String.format("%s%s %s",type.getTerminalColor(),message,RESET);
+        String formatted = String.format("%s%s%s",type.getTerminalColor(),message,RESET);
         System.out.println(formatted);
     }
 
