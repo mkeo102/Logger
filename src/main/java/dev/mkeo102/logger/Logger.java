@@ -65,6 +65,7 @@ public class Logger implements TerminalColors {
     }
 
     public void info() {info("");}
+
     public void info(String message){
         log(new InfoType(),message);
     }
