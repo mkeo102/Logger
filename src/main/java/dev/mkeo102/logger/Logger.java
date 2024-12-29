@@ -4,6 +4,7 @@ import java.io.PrintStream;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 @SuppressWarnings("unused")
 public class Logger implements TerminalColors {
@@ -75,7 +76,7 @@ public class Logger implements TerminalColors {
 
         if(formats != null) {
             for (Object o : formats) {
-                message = message.replaceFirst("\\{}", o == null ? "null" : o.toString());
+                message = message.replaceFirst("\\{}", o == null ? "null" : Matcher.quoteReplacement(o.toString()));
             }
         } else {
             message = message.replaceFirst("\\{}", "null");
@@ -93,7 +94,7 @@ public class Logger implements TerminalColors {
 
     public void warning(String message, Object... formats){
         for(Object o : formats){
-            message = message.replaceFirst("\\{}", o == null ? "null" : o.toString());
+            message = message.replaceFirst("\\{}", o == null ? "null" : Matcher.quoteReplacement(o.toString()));
         }
         warning(message);
     }
@@ -108,7 +109,7 @@ public class Logger implements TerminalColors {
 
     public void error(String message, Object... formats){
         for(Object o : formats){
-            message = message.replaceFirst("\\{}", o == null ? "null" : o.toString());
+            message = message.replaceFirst("\\{}", o == null ? "null" : Matcher.quoteReplacement(o.toString()));
         }
         error(message);
     }
@@ -132,7 +133,7 @@ public class Logger implements TerminalColors {
 
     public void debug(String message, Object... formats){
         for(Object o : formats){
-            message = message.replaceFirst("\\{}", o == null ? "null" : o.toString());
+            message = message.replaceFirst("\\{}", o == null ? "null" : Matcher.quoteReplacement(o.toString()));
         }
         debug(message);
     }
