@@ -55,6 +55,7 @@ public class Logger implements TerminalColors {
         log(type,message);
     }
 
+    public void info() {info("");}
     public void info(String message){
         log(new InfoType(),message);
     }
@@ -66,6 +67,8 @@ public class Logger implements TerminalColors {
         info(message);
     }
 
+
+    public void warning() {warning("");}
 
     public void warning(String message){
         log(new WarningType(),message);
@@ -81,6 +84,9 @@ public class Logger implements TerminalColors {
 
     public void error(String message){
         log(new ErrorType(),message);
+    }
+    public void error(){
+        error("");
     }
 
     public void error(String message, Object... formats){
@@ -101,6 +107,10 @@ public class Logger implements TerminalColors {
     public void debug(String message){
         if(debug)
             log(new DebugType(),message);
+    }
+
+    public void debug() {
+        debug("");
     }
 
     public void debug(String message, Object... formats){
