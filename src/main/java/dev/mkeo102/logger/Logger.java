@@ -143,7 +143,7 @@ public class Logger implements TerminalColors {
         return new Logger(clazz);
     }
 
-    public static Logger getLogger(String name){
+    static Logger getLogger(String name){
         return new Logger(name);
     }
 
@@ -151,11 +151,9 @@ public class Logger implements TerminalColors {
         return new Logger(clazz,debug);
     }
 
-    public static Logger getLogger(String name, boolean debug){
+    static Logger getLogger(String name, boolean debug){
         return new Logger(name,debug);
     }
-
-
 
     public void addOutput(PrintStream stream){
         this.outputs.add(stream);
@@ -164,10 +162,7 @@ public class Logger implements TerminalColors {
         this.outputs = new ArrayList<>();
         this.outputs.add(System.out);
     }
-
-
-
-
+    public void removeOutput(PrintStream stream){this.outputs.remove(stream);}
 
     private static class InfoType extends LoggerType {
         public InfoType() {
@@ -189,7 +184,6 @@ public class Logger implements TerminalColors {
             super("DEBUG", GREEN);
         }
     }
-
     private static class ExceptionType extends LoggerType {
         public ExceptionType() {
             super("EXCEPTION", RED);

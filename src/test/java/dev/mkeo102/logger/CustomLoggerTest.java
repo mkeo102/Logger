@@ -1,6 +1,5 @@
-package dev.mkeo102;
+package dev.mkeo102.logger;
 
-import dev.mkeo102.logger.Logger;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -68,7 +67,7 @@ class CustomLoggerTest {
         PrintStream ps = new PrintStream(baos, true, utf8);
 
         logger.addOutput(ps);
-        logger.info("{}", null);
+        logger.info("{}", (Object) null);
 
         assert baos.toString(utf8).contains("null");
       }
