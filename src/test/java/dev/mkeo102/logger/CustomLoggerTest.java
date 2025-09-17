@@ -1,6 +1,7 @@
 package dev.mkeo102.logger;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
@@ -90,5 +91,22 @@ class CustomLoggerTest {
     }
 
 
+    @Test
+    public void testExceptionPrinter() throws Throwable {
+        {
+            Logger logger = Logger.getLogger("Test", true);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final String utf8 = StandardCharsets.UTF_8.name();
+
+            PrintStream ps = new PrintStream(baos, true, utf8);
+
+            logger.addOutput(ps);
+            logger.exception(new IOException("This is a test exception!"));
+
+            assert baos.toString(utf8).contains("This is a test exception!") && baos.toString(utf8).contains("testExceptionPrinter");
+        }
+
+    }
 
 }

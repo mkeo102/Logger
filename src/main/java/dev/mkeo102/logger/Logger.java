@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
 public class Logger implements TerminalColors {
@@ -15,186 +16,202 @@ public class Logger implements TerminalColors {
     private final boolean debug;
 
 
-    private Logger(Class<?> clazz){
+    private Logger(Class<?> clazz) {
         this.name = clazz.getName();
         this.debug = false;
         this.outputs.add(System.out);
     }
 
-    private Logger(String name){
+    private Logger(String name) {
         this.name = name;
         this.debug = false;
         this.outputs.add(System.out);
     }
 
-    private Logger(Class<?> clazz, boolean debug){
+    private Logger(Class<?> clazz, boolean debug) {
         this.name = clazz.getName();
         this.debug = debug;
         this.outputs.add(System.out);
     }
 
-    private Logger(String name, boolean debug){
+    private Logger(String name, boolean debug) {
         this.name = name;
         this.debug = debug;
         this.outputs.add(System.out);
     }
 
-    public void log(LoggerType type, String message){
+    public void log(LoggerType type, String message) {
         LocalTime time = LocalTime.now();
-        String formatted = String.format("%s[%s] [%s:%s:%s] %s%s",type.getTerminalColor(),type.getTypeInfo(),time.getHour(),time.getMinute(),time.getSecond(),message,RESET);
+
+        String formatted = String.format("%s[%s] [%s] %s%s", type.getTerminalColor(), type.getTypeInfo(), time, message, RESET);
         this.outputs.forEach(out -> out.println(formatted));
     }
 
-    public void silentLog(LoggerType type, String message){
+    public void silentLog(LoggerType type, String message) {
         LocalTime time = LocalTime.now();
-        String formatted = String.format("%s %s%s",type.getTerminalColor(),message,RESET);
+        String formatted = String.format("%s %s%s", type.getTerminalColor(), message, RESET);
         outputs.forEach(out -> out.println(formatted));
     }
 
-    public void silentLog(LoggerType type, String message, Object... formats){
-        for(Object o : formats){
-            message = message.replaceFirst("\\{}", o == null ? "null" : o.toString());
-        }
-        silentLog(type,message);
+    public void silentLog(LoggerType type, String message, Object... formats) {
+        silentLog(type, format(message, formats));
     }
 
-    public void log(LoggerType type, String message, Object... formats){
-        for(Object o : formats){
-            message = message.replaceFirst("\\{}", o == null ? "null" : o.toString());
-        }
-        log(type,message);
+    public void log(LoggerType type, String message, Object... formats) {
+        log(type, format(message, formats));
     }
 
-    public void info() {info("");}
-
-    public void info(String message){
-        log(new InfoType(),message);
+    public void info() {
+        info("");
     }
 
-    public void info(String message, Object... formats){
+    public void info(String message) {
+        log(new InfoType(), message);
+    }
 
-
-        if(formats != null) {
-            for (Object o : formats) {
-                message = message.replaceFirst("\\{}", o == null ? "null" : Matcher.quoteReplacement(o.toString()));
-            }
-        } else {
-            message = message.replaceFirst("\\{}", "null");
-        }
-
-        info(message);
+    public void info(String message, Object... formats) {
+        info(format(message, formats));
     }
 
 
-    public void warning() {warning("");}
-
-    public void warning(String message){
-        log(new WarningType(),message);
+    public void warning() {
+        warning("");
     }
 
-    public void warning(String message, Object... formats){
-        for(Object o : formats){
-            message = message.replaceFirst("\\{}", o == null ? "null" : Matcher.quoteReplacement(o.toString()));
-        }
-        warning(message);
+    public void warning(String message) {
+        log(new WarningType(), message);
+    }
+
+    public void warning(String message, Object... formats) {
+
+        warning(format(message, formats));
     }
 
 
-    public void error(String message){
-        log(new ErrorType(),message);
+    public void error(String message) {
+        log(new ErrorType(), message);
     }
-    public void error(){
+
+    public void error() {
         error("");
     }
 
-    public void error(String message, Object... formats){
-        for(Object o : formats){
-            message = message.replaceFirst("\\{}", o == null ? "null" : Matcher.quoteReplacement(o.toString()));
-        }
-        error(message);
+    public void error(String message, Object... formats) {
+        error(format(message, formats));
     }
 
-    public void exception(Throwable t){
-        silentLog(new ExceptionType(), "{} {}",t.getClass().getName(),t.getMessage());
+    public void exception(Throwable t) {
+        log(new ExceptionType(), "{} {}", t.getClass().getName(), t.getMessage());
         StackTraceElement[] stackTrace = t.getStackTrace();
-        for (StackTraceElement ste : stackTrace){
-            silentLog(new StackTraceType(),"\tat {}.{}({}:{})",ste.getClassName(),ste.getMethodName(), ste.getFileName(),ste.getLineNumber());
+        for (StackTraceElement ste : stackTrace) {
+            log(new StackTraceType(), "    at {}.{}({}:{})", ste.getClassName(), ste.getMethodName(), ste.getFileName(), ste.getLineNumber());
         }
     }
 
-    public void debug(String message){
-        if(debug)
-            log(new DebugType(),message);
+    public void debug(String message) {
+        if (debug)
+            log(new DebugType(), message);
     }
 
     public void debug() {
         debug("");
     }
 
-    public void debug(String message, Object... formats){
-        for(Object o : formats){
+    public void debug(String message, Object... formats) {
+        for (Object o : formats) {
             message = message.replaceFirst("\\{}", o == null ? "null" : Matcher.quoteReplacement(o.toString()));
         }
         debug(message);
     }
 
 
-    public static Logger getLogger(Class<?> clazz){
+    public static Logger getLogger(Class<?> clazz) {
         return new Logger(clazz);
     }
 
-    static Logger getLogger(String name){
+    static Logger getLogger(String name) {
         return new Logger(name);
     }
 
-    public static Logger getLogger(Class<?> clazz, boolean debug){
-        return new Logger(clazz,debug);
+    public static Logger getLogger(Class<?> clazz, boolean debug) {
+        return new Logger(clazz, debug);
     }
 
-    static Logger getLogger(String name, boolean debug){
-        return new Logger(name,debug);
+    static Logger getLogger(String name, boolean debug) {
+        return new Logger(name, debug);
     }
 
-    public void addOutput(PrintStream stream){
+    public void addOutput(PrintStream stream) {
         this.outputs.add(stream);
     }
-    public void resetOutputs(){
+
+    public void resetOutputs() {
         this.outputs = new ArrayList<>();
         this.outputs.add(System.out);
     }
-    public void removeOutput(PrintStream stream){this.outputs.remove(stream);}
+
+    public void removeOutput(PrintStream stream) {
+        this.outputs.remove(stream);
+    }
+
+    private static String format(String format, Object... args) {
+        if(args == null) args = new Object[]{null};
+
+        Pattern replacePattern = Pattern.compile("(?<!\\\\)\\{[^}]*}");
+
+        for(Object o : args) {
+
+            String safeArg = o == null ? "null" : Matcher.quoteReplacement(o.toString());
+
+            format = replacePattern.matcher(format).replaceFirst(safeArg);
+        }
+
+        return format;
+    }
 
     private static class InfoType extends LoggerType {
+        public static final InfoType instance = new InfoType();
         public InfoType() {
             super("INFO", RESET);
         }
     }
+
     private static class WarningType extends LoggerType {
+        public static final WarningType instance = new WarningType();
         public WarningType() {
             super("WARNING", YELLOW);
         }
     }
+
     private static class ErrorType extends LoggerType {
+        public static final ErrorType instance = new ErrorType();
+
         public ErrorType() {
             super("ERROR", RED);
         }
     }
+
     private static class DebugType extends LoggerType {
+        public static final DebugType instance = new DebugType();
         public DebugType() {
             super("DEBUG", GREEN);
         }
     }
+
     private static class ExceptionType extends LoggerType {
+        public static final ExceptionType instance = new ExceptionType();
         public ExceptionType() {
             super("EXCEPTION", RED);
         }
     }
+
     private static class StackTraceType extends LoggerType {
+        public static final StackTraceType instance = new StackTraceType();
+
         public StackTraceType() {
-            super("", RED);
+            super("  TRACE  ", RED);
         }
     }
-
 
 
 }
