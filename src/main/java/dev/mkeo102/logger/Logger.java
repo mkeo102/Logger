@@ -1,8 +1,10 @@
 package dev.mkeo102.logger;
 
 import java.io.PrintStream;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,14 +43,11 @@ public class Logger implements TerminalColors {
     }
 
     public void log(LoggerType type, String message) {
-        LocalTime time = LocalTime.now();
-
-        String formatted = String.format("%s[%s] [%s:%s:%s] %s%s", type.getTerminalColor(), type.getTypeInfo(), time.getHour(), time.getMinute(), time.getSecond(), message, RESET);
+        String formatted = String.format("%s[%s] [%tT] %s%s", type.getTerminalColor(), type.getTypeInfo(), LocalDateTime.now(), message, RESET);
         this.outputs.forEach(out -> out.println(formatted));
     }
 
     public void silentLog(LoggerType type, String message) {
-        LocalTime time = LocalTime.now();
         String formatted = String.format("%s %s%s", type.getTerminalColor(), message, RESET);
         outputs.forEach(out -> out.println(formatted));
     }
