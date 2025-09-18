@@ -43,7 +43,7 @@ public class Logger implements TerminalColors {
     public void log(LoggerType type, String message) {
         LocalTime time = LocalTime.now();
 
-        String formatted = String.format("%s[%s] [%s] %s%s", type.getTerminalColor(), type.getTypeInfo(), time, message, RESET);
+        String formatted = String.format("%s[%s] [%s:%s:%s] %s%s", type.getTerminalColor(), type.getTypeInfo(), time.getHour(), time.getMinute(), time.getSecond(), message, RESET);
         this.outputs.forEach(out -> out.println(formatted));
     }
 
@@ -101,10 +101,10 @@ public class Logger implements TerminalColors {
     }
 
     public void exception(Throwable t) {
-        log(new ExceptionType(), "{} {}", t.getClass().getName(), t.getMessage());
+        log(new ExceptionType(), "{type} {message}", t.getClass().getName(), t.getMessage());
         StackTraceElement[] stackTrace = t.getStackTrace();
         for (StackTraceElement ste : stackTrace) {
-            log(new StackTraceType(), "    at {}.{}({}:{})", ste.getClassName(), ste.getMethodName(), ste.getFileName(), ste.getLineNumber());
+            log(new StackTraceType(), "    at {class}.{method}({file name}:{line})", ste.getClassName(), ste.getMethodName(), ste.getFileName(), ste.getLineNumber());
         }
     }
 
@@ -118,10 +118,7 @@ public class Logger implements TerminalColors {
     }
 
     public void debug(String message, Object... formats) {
-        for (Object o : formats) {
-            message = message.replaceFirst("\\{}", o == null ? "null" : Matcher.quoteReplacement(o.toString()));
-        }
-        debug(message);
+        debug(format(message, formats));
     }
 
 
