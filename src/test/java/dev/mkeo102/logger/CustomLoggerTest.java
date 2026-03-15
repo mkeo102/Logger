@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+
+import dev.mkeo102.logger.loggingStrategy.impl.StreamLoggingStrategy;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,64 +14,58 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CustomLoggerTest {
 
     @Test
-    void testMultipleOutput() throws Exception {
+    void testDebugEffectiveness() throws Exception {
 
-      Logger logger = Logger.getLogger("Test");
+        LoggerFactory factory = new LoggerFactory();
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      final String utf8 = StandardCharsets.UTF_8.name();
+        {
+            factory.setDebugEnabled(false);
 
-      PrintStream ps = new PrintStream(baos,true,utf8);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final String utf8 = StandardCharsets.UTF_8.name();
+            PrintStream ps = new PrintStream(baos, true, utf8);
+            factory.setFallbackProvider(new StreamLoggingStrategy(ps));
 
-      logger.addOutput(ps);
-      logger.info("This is a test");
+            Logger logger = factory.getLogger("Test");
 
-      assert baos.toString(utf8).contains("This is a test");
-    }
 
-    @Test
-    void testDebugEffectiveness() throws Exception{
-      {
-        Logger logger = Logger.getLogger("Test", false);
+            logger.debug("This is a test");
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final String utf8 = StandardCharsets.UTF_8.name();
+            assert !baos.toString(utf8).contains("This is a test");
+            ps.close();
+        }
 
-        PrintStream ps = new PrintStream(baos, true, utf8);
+        {
+            factory.setDebugEnabled(true);
 
-        logger.addOutput(ps);
-        logger.debug("This is a test");
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final String utf8 = StandardCharsets.UTF_8.name();
+            PrintStream ps = new PrintStream(baos, true, utf8);
+            factory.setFallbackProvider(new StreamLoggingStrategy(ps));
 
-        assert !baos.toString(utf8).contains("This is a test");
-      }
+            Logger logger = factory.getLogger("Test1");
 
-      {
-        Logger logger = Logger.getLogger("Test", true);
+            logger.debug("This is a test");
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final String utf8 = StandardCharsets.UTF_8.name();
-
-        PrintStream ps = new PrintStream(baos, true, utf8);
-
-        logger.addOutput(ps);
-        logger.debug("This is a test");
-
-        assert baos.toString(utf8).contains("This is a test");
-      }
+            assert baos.toString(utf8).contains("This is a test");
+        }
 
     }
 
     @Test
     public void testExceptionPrinter() throws Throwable {
-        {
-            Logger logger = Logger.getLogger("Test", true);
+        LoggerFactory factory = new LoggerFactory();
 
+        factory.setDebugEnabled(false);
+
+        {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             final String utf8 = StandardCharsets.UTF_8.name();
-
             PrintStream ps = new PrintStream(baos, true, utf8);
+            factory.setFallbackProvider(new StreamLoggingStrategy(ps));
 
-            logger.addOutput(ps);
+            Logger logger = factory.getLogger("Test");
+
             logger.exception(new IOException("This is a test exception!"));
 
             assert baos.toString(utf8).contains("This is a test exception!") && baos.toString(utf8).contains("testExceptionPrinter");
@@ -145,51 +141,54 @@ class CustomLoggerTest {
 
     @Test
     public void testMuting() throws UnsupportedEncodingException {
-        Logger.setMuted(true);
+        LoggerFactory factory = new LoggerFactory();
+        factory.setLoggersMuted(true);
         {
-            Logger logger = Logger.getLogger("Test");
+            Logger logger = factory.getLogger("Test");
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             final String utf8 = StandardCharsets.UTF_8.name();
-
             PrintStream ps = new PrintStream(baos, true, utf8);
+            factory.setFallbackProvider(new StreamLoggingStrategy(ps));
 
-            logger.addOutput(ps);
             logger.info("This is a test");
 
             assert baos.toString(utf8).isEmpty();
         }
 
-        Logger.setMuted(false);
+        factory.setLoggersMuted(false);
+
 
         {
-            Logger logger = Logger.getLogger("Test");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             final String utf8 = StandardCharsets.UTF_8.name();
-
             PrintStream ps = new PrintStream(baos, true, utf8);
+            factory.setFallbackProvider(new StreamLoggingStrategy(ps));
 
-            logger.addOutput(ps);
+            Logger logger = factory.getLogger("Test1");
+
+
             logger.info("This is a test");
 
             assert baos.toString(utf8).contains("This is a test");
         }
 
-        Logger.setMuted(true);
+        factory.setLoggersMuted(true);
 
         {
-            Logger logger = Logger.getLogger("Test");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             final String utf8 = StandardCharsets.UTF_8.name();
-
             PrintStream ps = new PrintStream(baos, true, utf8);
 
-            logger.addOutput(ps);
+            factory.setFallbackProvider(new StreamLoggingStrategy(ps));
+
+            Logger logger = factory.getLogger("Test2");
+
             logger.info("This is a test");
 
             assert baos.toString(utf8).isEmpty();
         }
 
-        Logger.setMuted(false);
 
     }
 

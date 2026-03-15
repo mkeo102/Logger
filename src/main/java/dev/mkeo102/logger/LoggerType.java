@@ -8,7 +8,7 @@ public class LoggerType implements TerminalColors {
     private final String typeInfo;
     private final String terminalColor;
 
-    public LoggerType(String typeInfo, String color){
+    protected LoggerType(String typeInfo, String color){
         this.typeInfo = typeInfo;
         this.terminalColor = color;
     }

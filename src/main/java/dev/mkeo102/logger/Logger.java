@@ -1,9 +1,9 @@
 package dev.mkeo102.logger;
 
-import java.io.PrintStream;
+import dev.mkeo102.logger.loggingStrategy.LoggingStrategy;
+
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.MissingFormatArgumentException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,48 +11,43 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unused")
 public class Logger implements TerminalColors {
 
-    private static boolean muted = false;
+    private boolean muted = false;
+    private boolean debug = true;
 
-    private List<PrintStream> outputs = new ArrayList<>();
     private final String name;
 
-    private final boolean debug;
+    private final LoggingStrategy fallbackProvider;
+    private final Map<LoggerType, LoggingStrategy> providers;
 
-    private Logger(Class<?> clazz) {
+
+    Logger(Class<?> clazz, LoggingStrategy fallbackProvider, Map<LoggerType, LoggingStrategy> providers) {
         this.name = clazz.getName();
-        this.debug = false;
-        this.outputs.add(System.out);
+        this.fallbackProvider = fallbackProvider;
+        this.providers = providers;
     }
 
-    private Logger(String name) {
+    Logger(String name, LoggingStrategy fallbackProvider, Map<LoggerType, LoggingStrategy> providers) {
         this.name = name;
-        this.debug = false;
-        this.outputs.add(System.out);
-    }
-
-    private Logger(Class<?> clazz, boolean debug) {
-        this.name = clazz.getName();
-        this.debug = debug;
-        this.outputs.add(System.out);
-    }
-
-    private Logger(String name, boolean debug) {
-        this.name = name;
-        this.debug = debug;
-        this.outputs.add(System.out);
+        this.fallbackProvider = fallbackProvider;
+        this.providers = providers;
     }
 
     public void log(LoggerType type, String message) {
         if(muted()) return;
-        // Using String.format here for the time formatting
+        // Using String.format here for the simple time formatting
         String formatted = String.format("%s[%s] [%tT] %s%s", type.getTerminalColor(), type.getTypeInfo(), LocalDateTime.now(), message, RESET);
-        this.outputs.forEach(out -> out.println(formatted));
+
+        LoggingStrategy provider = providers.getOrDefault(type, fallbackProvider);
+        provider.log(type, formatted);
+
     }
 
     public void silentLog(LoggerType type, String message) {
         if(muted()) return;
-        String formatted = format("{color} {message}{color-reset}", type.getTerminalColor(), message, RESET);
-        outputs.forEach(out -> out.println(formatted));
+        String formatted = format("{color}{message}{color-reset}", type.getTerminalColor(), message, RESET);
+
+        LoggingStrategy provider = providers.getOrDefault(type, fallbackProvider);
+        provider.silentLog(type, formatted);
     }
 
     public void silentLog(LoggerType type, String message, Object... formats) {
@@ -122,34 +117,7 @@ public class Logger implements TerminalColors {
     }
 
 
-    public static Logger getLogger(Class<?> clazz) {
-        return new Logger(clazz);
-    }
 
-    static Logger getLogger(String name) {
-        return new Logger(name);
-    }
-
-    public static Logger getLogger(Class<?> clazz, boolean debug) {
-        return new Logger(clazz, debug);
-    }
-
-    static Logger getLogger(String name, boolean debug) {
-        return new Logger(name, debug);
-    }
-
-    public void addOutput(PrintStream stream) {
-        this.outputs.add(stream);
-    }
-
-    public void resetOutputs() {
-        this.outputs = new ArrayList<>();
-        this.outputs.add(System.out);
-    }
-
-    public void removeOutput(PrintStream stream) {
-        this.outputs.remove(stream);
-    }
 
     static String format(String format, Object... args) {
         if(args == null) args = new Object[]{null};
@@ -176,29 +144,38 @@ public class Logger implements TerminalColors {
         return input.replace("{", "\\{");
     }
 
-    public static void setMuted(boolean muted) {
-        Logger.muted = muted;
+    public void setMuted(boolean muted) {
+        this.muted = muted;
     }
 
-    public static boolean muted() {
+    public boolean muted() {
         return muted;
     }
 
-    private static class InfoType extends LoggerType {
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
+    public boolean debugEnabled() {
+        return debug;
+    }
+
+
+    public static class InfoType extends LoggerType {
         public static final InfoType instance = new InfoType();
         public InfoType() {
             super("INFO", RESET);
         }
     }
 
-    private static class WarningType extends LoggerType {
+    public static class WarningType extends LoggerType {
         public static final WarningType instance = new WarningType();
         public WarningType() {
             super("WARNING", YELLOW);
         }
     }
 
-    private static class ErrorType extends LoggerType {
+    public static class ErrorType extends LoggerType {
         public static final ErrorType instance = new ErrorType();
 
         public ErrorType() {
@@ -206,21 +183,21 @@ public class Logger implements TerminalColors {
         }
     }
 
-    private static class DebugType extends LoggerType {
+    public static class DebugType extends LoggerType {
         public static final DebugType instance = new DebugType();
         public DebugType() {
             super("DEBUG", GREEN);
         }
     }
 
-    private static class ExceptionType extends LoggerType {
+    public static class ExceptionType extends LoggerType {
         public static final ExceptionType instance = new ExceptionType();
         public ExceptionType() {
             super("EXCEPTION", RED);
         }
     }
 
-    private static class StackTraceType extends LoggerType {
+    public static class StackTraceType extends LoggerType {
         public static final StackTraceType instance = new StackTraceType();
 
         public StackTraceType() {
