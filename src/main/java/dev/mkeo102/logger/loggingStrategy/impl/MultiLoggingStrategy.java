@@ -5,6 +5,9 @@ import dev.mkeo102.logger.loggingStrategy.LoggingStrategy;
 
 import java.util.List;
 
+/**
+ * A logging strategy to defer the output to multiple different strategies.
+ */
 public class MultiLoggingStrategy implements LoggingStrategy {
 
     private final List<LoggingStrategy> providers;

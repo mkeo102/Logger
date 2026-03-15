@@ -7,6 +7,10 @@ import java.time.LocalDateTime;
 
 import static dev.mkeo102.logger.TerminalColors.*;
 
+/**
+ * The default logging strategy. <br/>
+ * Outputs logs to {@link System#out}
+ */
 public class SysOutLoggingStrategy implements LoggingStrategy {
 
     @Override

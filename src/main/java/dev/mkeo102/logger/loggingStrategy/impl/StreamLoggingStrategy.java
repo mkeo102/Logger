@@ -10,6 +10,9 @@ import java.time.LocalDateTime;
 
 import static dev.mkeo102.logger.TerminalColors.RESET;
 
+/**
+ * A logging strategy to output logs to an {@link OutputStream}
+ */
 public class StreamLoggingStrategy implements LoggingStrategy {
 
     private final OutputStream out;
