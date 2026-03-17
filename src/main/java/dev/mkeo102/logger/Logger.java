@@ -35,19 +35,15 @@ public class Logger implements TerminalColors {
     public void log(LoggerType type, String message) {
         if(muted()) return;
         // Using String.format here for the simple time formatting
-        String formatted = String.format("%s[%s] [%tT] %s%s", type.getTerminalColor(), type.getTypeInfo(), LocalDateTime.now(), message, RESET);
-
         LoggingStrategy provider = providers.getOrDefault(type, fallbackProvider);
-        provider.log(type, formatted);
+        provider.log(type, message);
 
     }
 
     public void silentLog(LoggerType type, String message) {
         if(muted()) return;
-        String formatted = format("{color}{message}{color-reset}", type.getTerminalColor(), message, RESET);
-
         LoggingStrategy provider = providers.getOrDefault(type, fallbackProvider);
-        provider.silentLog(type, formatted);
+        provider.silentLog(type, message);
     }
 
     public void silentLog(LoggerType type, String message, Object... formats) {
